@@ -39,32 +39,32 @@ def resize_video_with_audio(input_video_path, output_video_path,
         audio_bitrate (str, optional): Audio bitrate. Defaults to "128k".
         video_params (dict, optional): Additional video parameters for ffmpeg.
     """
-    try:
-        input_video = ffmpeg.input(input_video_path)
-        audio = input_video.audio
+    #try:
+    input_video = ffmpeg.input(input_video_path)
+    audio = input_video.audio
 
-        video = (
-            input_video
-            .filter('scale', target_width, target_height)
-            .filter('fps', fps=target_fps)
-        )
+    video = (
+        input_video
+        .filter('scale', target_width, target_height)
+        .filter('fps', fps=target_fps)
+    )
 
-        output = ffmpeg.output(video, audio, output_video_path,
-                                vcodec=video_codec,
-                                acodec=audio_codec,
-                                audio_bitrate=audio_bitrate,
-                                **video_params)
-        ffmpeg.run(output, overwrite_output=True)
-        # Run ffmpeg and check for errors
-        process_result = ffmpeg.run(output, overwrite_output=True)         
+    output = ffmpeg.output(video, audio, output_video_path,
+                            vcodec=video_codec,
+                            acodec=audio_codec,
+                            audio_bitrate=audio_bitrate,
+                            **video_params)
+    ffmpeg.run(output, overwrite_output=True)
+    # Run ffmpeg and check for errors
+    process_result = ffmpeg.run(output, overwrite_output=True)         
 
-        st.write(f"Video resized to {target_width}x{target_height} at {target_fps}fps "
-                f"with audio codec {audio_codec} @ {audio_bitrate} and saved to: "
-                f"{output_video_path}")        
-        return True  # Indicate success
+    st.write(f"Video resized to {target_width}x{target_height} at {target_fps}fps "
+            f"with audio codec {audio_codec} @ {audio_bitrate} and saved to: "
+            f"{output_video_path}")        
+    return True  # Indicate success
         
-    except Exception as e:
-        st.write(f"An error occurred during video processing: {e}")
+    # except Exception as e:
+    #     st.write(f"An error occurred during video processing: {e}")
         
 
 # --- Streamlit App ---
