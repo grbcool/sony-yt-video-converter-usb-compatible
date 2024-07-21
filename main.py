@@ -14,7 +14,7 @@ def download_youtube_video(video_url, output_path='.'):
     try:
         yt = YouTube(video_url)
         video_stream = yt.streams.get_highest_resolution()
-        video_stream.download(output_path)
+        _ = video_stream.download(output_path)
         st.write(f'Video downloaded successfully: {yt.title}')
         return yt.title  # Return the video title
     except Exception as e:
