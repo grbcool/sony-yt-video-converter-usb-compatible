@@ -56,12 +56,7 @@ def resize_video_with_audio(input_video_path, output_video_path,
                                 **video_params)
         ffmpeg.run(output, overwrite_output=True)
         # Run ffmpeg and check for errors
-        process_result = ffmpeg.run(output, overwrite_output=True) 
-
-        # Check if ffmpeg ran successfully (return code should be 0)
-        if process_result[0] != 0:
-            st.write(f"An error occurred during video processing: {process_result[1]}")
-            return False  # Indicate failure
+        process_result = ffmpeg.run(output, overwrite_output=True)         
 
         st.write(f"Video resized to {target_width}x{target_height} at {target_fps}fps "
                 f"with audio codec {audio_codec} @ {audio_bitrate} and saved to: "
@@ -70,6 +65,7 @@ def resize_video_with_audio(input_video_path, output_video_path,
         
     except Exception as e:
         st.write(f"An error occurred during video processing: {e}")
+        
 
 # --- Streamlit App ---
 st.title("YouTube Video Downloader & Resizer")
@@ -103,17 +99,14 @@ if st.button("Download and Process Video"):
                 # 2. Process the video
                 input_path = downloaded_file
                 output_path = f"{os.path.splitext(downloaded_file)[0]}_processed.mp4"
-                # 2. Process the video
-                processing_success = resize_video_with_audio(input_path, output_path, 
-                                                        target_width, target_height, 
-                                                        target_fps, video_codec, 
-                                                        audio_codec, audio_bitrate)
+                _ = resize_video_with_audio(input_path, output_path,
+                                        target_width, target_height, target_fps,
+                                        video_codec, audio_codec, audio_bitrate)
 
-                if processing_success:
-                    # 3. Provide download link ONLY if processing was successful 
-                    st.write("Processing complete!")
-                    with open(output_path, "rb") as f:
-                        st.download_button("Download Processed Video", f, file_name=downloaded_file) 
+                # 3. Provide download link for processed video
+                st.write("Processing complete!")
+                with open(output_path, "rb") as f:
+                    st.download_button("Download Processed Video", f, file_name=downloaded_file)  
 
                 # Delete the downloaded files
                 os.remove(downloaded_file)
