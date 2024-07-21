@@ -1,4 +1,3 @@
-
 import streamlit as st
 from pytubefix import YouTube
 import ffmpeg
@@ -47,11 +46,11 @@ def resize_video_with_audio(video_bytes, output_video_path,
         video_params (dict, optional): Additional video parameters for ffmpeg.
     """
     try:
-        with tempfile.NamedTemporaryFile(delete=False) as temp_input_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_input_file:
             temp_input_file.write(video_bytes)
             temp_input_file.flush()
             input_video_path = temp_input_file.name
-        
+
         input_video = ffmpeg.input(input_video_path)
         audio = input_video.audio
 
@@ -75,6 +74,7 @@ def resize_video_with_audio(video_bytes, output_video_path,
         
     except Exception as e:
         st.write(f"An error occurred during video processing: {e}")
+        return False
 
 
 # --- Streamlit App ---
@@ -105,19 +105,21 @@ if st.button("Download and Process Video"):
             # 2. Process the video
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_output_file:
                 output_path = temp_output_file.name
-            
-            _ = resize_video_with_audio(video_bytes, output_path,
-                                        target_width, target_height, target_fps,
-                                        video_codec, audio_codec, audio_bitrate)
 
-            # 3. Provide download link for processed video
-            st.write("Processing complete!")
-            with open(output_path, "rb") as f:
-                st.download_button("Download Processed Video", f, file_name=f"{video_title}.mp4")  
+            success = resize_video_with_audio(video_bytes, output_path,
+                                              target_width, target_height, target_fps,
+                                              video_codec, audio_codec, audio_bitrate)
 
-            # Delete the temporary files
-            os.remove(output_path)
+            if success:
+                # 3. Provide download link for processed video
+                st.write("Processing complete!")
+                with open(output_path, "rb") as f:
+                    st.download_button("Download Processed Video", f, file_name=f"{video_title}_processed.mp4")  
 
+                # Delete the temporary file
+                os.remove(output_path)
+            else:
+                st.write("Error: Failed to process the video.")
         else:
             st.write("Error: Failed to download the video.")
     else:
